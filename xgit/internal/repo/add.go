@@ -13,7 +13,7 @@ func AddRepo(path string) error {
 		}
 
 		if info.IsDir() {
-			if info.Name() == ".git" {
+			if info.Name() == ".xgit" {
 				return filepath.SkipDir
 			}
 			return nil
