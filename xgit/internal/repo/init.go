@@ -7,7 +7,7 @@ import (
 )
 
 func InitRepo(path string) error {
-	gitPath := filepath.Join(path, ".git")
+	gitPath := filepath.Join(path, ".xgit")
 
 	reinit := false
 	if _, err := os.Stat(gitPath); err == nil {
