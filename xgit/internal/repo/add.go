@@ -8,6 +8,9 @@ import (
 )
 
 func AddRepo(path string) error {
+	objectsDir := filepath.Join(".xgit", "objects")
+	fmt.Println(objectsDir)
+
 	fileInfo, err := os.Stat(path)
 
 	if err != nil {
@@ -28,6 +31,19 @@ func AddRepo(path string) error {
 				}
 				return nil
 			}
+			content, err := os.ReadFile(p)
+			if err != nil {
+				return err
+			}
+			hashString, data, err := hashBlob(content)
+			if err != nil {
+				return err
+			}
+			if err := writeObject(objectsDir, hashString, data); err != nil {
+				return err
+			}
+
+			fmt.Println(hashString)
 			fmt.Println(p)
 			fmt.Println(info.Name())
 			fmt.Println(info.ModTime())
@@ -37,6 +53,19 @@ func AddRepo(path string) error {
 		})
 	}
 
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	hashString, data, err := hashBlob(content)
+	if err != nil {
+		return err
+	}
+	if err := writeObject(objectsDir, hashString, data); err != nil {
+		return err
+	}
+
+	fmt.Println(hashString)
 	fmt.Println(path)
 	fmt.Println(fileInfo.Name())
 	fmt.Println(fileInfo.ModTime())
