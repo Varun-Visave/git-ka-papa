@@ -11,13 +11,15 @@ var addCmd = &cobra.Command{
 	Short: "adds all the files to the xgit",
 	Long:  "adds all untracked files from the working directory to xgit",
 
-	Args: cobra.MaximumNArgs(2),
+	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		path := "."
-		if len(args) > 0 {
-			path = args[0]
+
+		for _, a := range args {
+			if err := repo.AddRepo(a); err != nil {
+				return err
+			}
 		}
-		return repo.AddRepo(path)
+		return nil
 	},
 }
 
