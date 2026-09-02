@@ -9,7 +9,12 @@ import (
 
 func AddRepo(path string) error {
 	objectsDir := filepath.Join(".xgit", "objects")
-	fmt.Println(objectsDir)
+	indexPath := filepath.Join(".xgit", "index")
+
+	entries, err := readIndex(indexPath)
+	if err != nil {
+		return err
+	}
 
 	fileInfo, err := os.Stat(path)
 
@@ -21,7 +26,7 @@ func AddRepo(path string) error {
 		return err
 	}
 	if fileInfo.IsDir() {
-		return filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+		err := filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
@@ -42,15 +47,16 @@ func AddRepo(path string) error {
 			if err := writeObject(objectsDir, hashString, data); err != nil {
 				return err
 			}
+			entries[normalizePath(p)] = hashString
 
 			fmt.Println(hashString)
-			fmt.Println(p)
-			fmt.Println(info.Name())
-			fmt.Println(info.ModTime())
-			fmt.Println(info.Size())
-			fmt.Println(info.IsDir())
 			return nil
 		})
+		if err != nil {
+			return err
+		}
+
+		return writeIndex(indexPath, entries)
 	}
 
 	content, err := os.ReadFile(path)
@@ -65,11 +71,16 @@ func AddRepo(path string) error {
 		return err
 	}
 
+	entries[normalizePath(path)] = hashString
+	if err := writeIndex(indexPath, entries); err != nil {
+		return err
+	}
+
 	fmt.Println(hashString)
-	fmt.Println(path)
-	fmt.Println(fileInfo.Name())
-	fmt.Println(fileInfo.ModTime())
-	fmt.Println(fileInfo.Size())
-	fmt.Println(fileInfo.IsDir())
+	// fmt.Println(path)
+	// fmt.Println(fileInfo.Name())
+	// fmt.Println(fileInfo.ModTime())
+	// fmt.Println(fileInfo.Size())
+	// fmt.Println(fileInfo.IsDir())
 	return nil
 }
