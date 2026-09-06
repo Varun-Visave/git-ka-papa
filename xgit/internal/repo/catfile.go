@@ -33,3 +33,5 @@ func readObject(objectDir string, hash string) ([]byte, error) {
 	return content, nil
 
 }
+
+
